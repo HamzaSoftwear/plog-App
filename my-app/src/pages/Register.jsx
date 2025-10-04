@@ -1,0 +1,51 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Box, Button, Container, TextField, Typography, Stack, Avatar } from '@mui/material';
+import AppTheme from '../theme/AppTheme';
+import CssBaseline from '@mui/material/CssBaseline';
+import AppAppBar from '../components/AppAppBar';
+import { useAuth } from '../context/AuthContext';
+
+export default function Register() {
+  const { register } = useAuth();
+  const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (!name || !email || !password) return;
+    register(name, email, password);
+    navigate('/profile');
+  };
+
+  return (
+    <AppTheme>
+      <CssBaseline enableColorScheme />
+      <AppAppBar />
+      <Container maxWidth="sm" sx={{ mt: 12 }}>
+        <Stack spacing={3}>
+          <Stack spacing={1} alignItems="center">
+            <Avatar />
+            <Typography variant="h4">Create account</Typography>
+          </Stack>
+          <Box component="form" onSubmit={onSubmit}>
+            <Stack spacing={2}>
+              <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth required />
+              <TextField label="Email" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth required />
+              <TextField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth required />
+              <Button type="submit" variant="contained">Register</Button>
+              <Typography variant="body2">
+                Have an account? <Link to="/login">Sign in</Link>
+              </Typography>
+            </Stack>
+          </Box>
+        </Stack>
+      </Container>
+    </AppTheme>
+  );
+}
+
+
+
