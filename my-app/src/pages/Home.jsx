@@ -10,6 +10,8 @@ import FAQ from '../components/FAQ';
 
 function Home() {
   return (
+    console.log(import.meta.env.VITE_STRAPI_URL),
+
     <AppTheme>
       <CssBaseline enableColorScheme />
       <AppAppBar />

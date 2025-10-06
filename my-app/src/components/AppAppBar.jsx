@@ -1,21 +1,23 @@
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import Container from '@mui/material/Container';
-import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
-import Drawer from '@mui/material/Drawer';
-import Typography from '@mui/material/Typography';
+import {
+  Box,
+  AppBar,
+  Toolbar,
+  Button,
+  IconButton,
+  Container,
+  Divider,
+  MenuItem,
+  Drawer,
+  Typography,
+  Avatar,
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import ColorModeIconDropdown from '.././theme/ColorModelconDropdown'
+import ColorModeIconDropdown from '../theme/ColorModelconDropdown';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -38,9 +40,11 @@ export default function AppAppBar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const toggleDrawer = (newOpen) => () => {
-    setOpen(newOpen);
-  };
+  const toggleDrawer = (newOpen) => () => setOpen(newOpen);
+
+  const displayName =
+    user?.name || (user?.email ? user.email.split('@')[0] : 'Profile');
+  const initial = displayName.charAt(0).toUpperCase();
 
   return (
     <AppBar
@@ -55,7 +59,7 @@ export default function AppAppBar() {
     >
       <Container maxWidth="lg">
         <StyledToolbar variant="dense" disableGutters>
-          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
+          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
             <Typography
               variant="h6"
               component="h1"
@@ -70,179 +74,112 @@ export default function AppAppBar() {
             >
               Hamza
             </Typography>
-            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-              <Button 
-                variant="text" 
-                size="medium"
-                sx={{
-                  color: 'text.primary',
-                  fontWeight: 500,
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                    color: 'primary.main',
-                  },
-                }}
-              >
-                Features
-              </Button>
-              <Button 
-                variant="text" 
-                size="medium"
-                sx={{
-                  color: 'text.primary',
-                  fontWeight: 500,
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                    color: 'primary.main',
-                  },
-                }}
-              >
-                Testimonials
-              </Button>
-              <Button 
-                variant="text" 
-                size="medium"
-                sx={{
-                  color: 'text.primary',
-                  fontWeight: 500,
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                    color: 'primary.main',
-                  },
-                }}
-              >
-                Highlights
-              </Button>
-              <Button 
-                variant="text" 
-                size="medium"
-                sx={{
-                  color: 'text.primary',
-                  fontWeight: 500,
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                    color: 'primary.main',
-                  },
-                }}
-              >
-                Pricing
-              </Button>
-              <Button 
-                variant="text" 
-                size="medium" 
-                sx={{ 
-                  minWidth: 0,
-                  color: 'text.primary',
-                  fontWeight: 500,
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                    color: 'primary.main',
-                  },
-                }}
-              >
-                FAQ
-              </Button>
-              <Button 
-                variant="text" 
-                size="medium" 
-                sx={{ 
-                  minWidth: 0,
-                  color: 'text.primary',
-                  fontWeight: 500,
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                    color: 'primary.main',
-                  },
-                }}
-              >
-                Blog
-              </Button>
+
+            {/* روابط التنقل */}
+            <Box sx={{ display: { xs: 'none', md: 'flex' }, ml: 3 }}>
+              {['Features', 'Testimonials', 'Highlights', 'Pricing', 'FAQ', 'Blog'].map(
+                (item) => (
+                  <Button
+                    key={item}
+                    variant="text"
+                    size="medium"
+                    sx={{
+                      color: 'text.primary',
+                      fontWeight: 500,
+                      '&:hover': {
+                        backgroundColor: 'action.hover',
+                        color: 'primary.main',
+                      },
+                    }}
+                  >
+                    {item}
+                  </Button>
+                )
+              )}
             </Box>
           </Box>
-          <Box
-            sx={{
-              display: { xs: 'none', md: 'flex' },
-              gap: 1,
-              alignItems: 'center',
-            }}
-          >
+
+          {/* المستخدم */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1, alignItems: 'center' }}>
             {!user ? (
-            <Button 
-              variant="text" 
-              size="small"
-              sx={{
-                color: 'text.primary',
-                fontWeight: 500,
-                '&:hover': {
-                  backgroundColor: 'action.hover',
-                  color: 'primary.main',
-                },
-              }}
-              onClick={() => navigate('/login')}
-            >
-              Sign in
-            </Button>
+              <>
+                <Button
+                  variant="text"
+                  size="small"
+                  sx={{
+                    color: 'text.primary',
+                    fontWeight: 500,
+                    '&:hover': { backgroundColor: 'action.hover', color: 'primary.main' },
+                  }}
+                  onClick={() => navigate('/login')}
+                >
+                  Sign in
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    px: 3,
+                    '&:hover': {
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                  }}
+                  onClick={() => navigate('/register')}
+                >
+                  Sign up
+                </Button>
+              </>
             ) : (
-            <Button 
-              variant="text" 
-              size="small"
-              sx={{
-                color: 'text.primary',
-                fontWeight: 500,
-                '&:hover': {
-                  backgroundColor: 'action.hover',
-                  color: 'primary.main',
-                },
-              }}
-              onClick={() => navigate('/profile')}
-            >
-              {user.name || 'Profile'}
-            </Button>
-            )}
-            {!user ? (
-            <Button 
-              variant="contained" 
-              size="small"
-              sx={{
-                backgroundColor: 'primary.main',
-                color: 'primary.contrastText',
-                fontWeight: 600,
-                borderRadius: 2,
-                px: 3,
-                '&:hover': {
-                  backgroundColor: 'primary.dark',
-                  transform: 'translateY(-1px)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                },
-                transition: 'all 0.2s ease-in-out',
-              }}
-              onClick={() => navigate('/register')}
-            >
-              Sign up
-            </Button>
-            ) : (
-            <Button 
-              variant="outlined" 
-              size="small"
-              sx={{
-                color: 'text.primary',
-                borderColor: 'divider',
-                fontWeight: 500,
-                px: 3,
-                '&:hover': {
-                  backgroundColor: 'action.hover',
-                  borderColor: 'primary.main',
-                  color: 'primary.main',
-                },
-                transition: 'all 0.2s ease-in-out',
-              }}
-              onClick={logout}
-            >
-              Sign out
-            </Button>
+              <>
+                <Button
+                  variant="text"
+                  size="small"
+                  sx={{
+                    color: 'text.primary',
+                    fontWeight: 500,
+                    '&:hover': { backgroundColor: 'action.hover', color: 'primary.main' },
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                  }}
+                  onClick={() => navigate('/profile')}
+                >
+                  <Avatar
+                    src={user.photoURL || undefined}
+                    sx={{ width: 30, height: 30 }}
+                  >
+                    {!user.photoURL ? initial : null}
+                  </Avatar>
+                  {displayName}
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    color: 'text.primary',
+                    borderColor: 'divider',
+                    fontWeight: 500,
+                    px: 3,
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                      borderColor: 'primary.main',
+                      color: 'primary.main',
+                    },
+                  }}
+                  onClick={logout}
+                >
+                  Sign out
+                </Button>
+              </>
             )}
             <ColorModeIconDropdown />
           </Box>
+
+          {/* نسخة الموبايل */}
           <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1 }}>
             <ColorModeIconDropdown size="medium" />
             <IconButton aria-label="Menu button" onClick={toggleDrawer(true)}>
@@ -252,113 +189,67 @@ export default function AppAppBar() {
               anchor="top"
               open={open}
               onClose={toggleDrawer(false)}
-              PaperProps={{
-                sx: {
-                  top: 'var(--template-frame-height, 0px)',
-                },
-              }}
+              PaperProps={{ sx: { top: 'var(--template-frame-height, 0px)' } }}
             >
               <Box sx={{ p: 2, backgroundColor: 'background.default' }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                  }}
-                >
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <IconButton onClick={toggleDrawer(false)}>
                     <CloseRoundedIcon />
                   </IconButton>
                 </Box>
-                <MenuItem sx={{ 
-                  py: 1.5, 
-                  '&:hover': { backgroundColor: 'action.hover' },
-                  borderRadius: 1,
-                  mx: 1,
-                }}>
-                  Features
-                </MenuItem>
-                <MenuItem sx={{ 
-                  py: 1.5, 
-                  '&:hover': { backgroundColor: 'action.hover' },
-                  borderRadius: 1,
-                  mx: 1,
-                }}>
-                  Testimonials
-                </MenuItem>
-                <MenuItem sx={{ 
-                  py: 1.5, 
-                  '&:hover': { backgroundColor: 'action.hover' },
-                  borderRadius: 1,
-                  mx: 1,
-                }}>
-                  Highlights
-                </MenuItem>
-                <MenuItem sx={{ 
-                  py: 1.5, 
-                  '&:hover': { backgroundColor: 'action.hover' },
-                  borderRadius: 1,
-                  mx: 1,
-                }}>
-                  Pricing
-                </MenuItem>
-                <MenuItem sx={{ 
-                  py: 1.5, 
-                  '&:hover': { backgroundColor: 'action.hover' },
-                  borderRadius: 1,
-                  mx: 1,
-                }}>
-                  FAQ
-                </MenuItem>
-                <MenuItem sx={{ 
-                  py: 1.5, 
-                  '&:hover': { backgroundColor: 'action.hover' },
-                  borderRadius: 1,
-                  mx: 1,
-                }}>
-                  Blog
-                </MenuItem>
+
+                {['Features', 'Testimonials', 'Highlights', 'Pricing', 'FAQ', 'Blog'].map(
+                  (item) => (
+                    <MenuItem key={item} sx={{ py: 1.5 }}>
+                      {item}
+                    </MenuItem>
+                  )
+                )}
+
                 <Divider sx={{ my: 3 }} />
-                <MenuItem>
-                  <Button 
-                    variant="contained" 
-                    fullWidth
-                    sx={{
-                      backgroundColor: 'primary.main',
-                      color: 'primary.contrastText',
-                      fontWeight: 600,
-                      borderRadius: 2,
-                      py: 1.5,
-                      '&:hover': {
-                        backgroundColor: 'primary.dark',
-                        transform: 'translateY(-1px)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                      },
-                      transition: 'all 0.2s ease-in-out',
-                    }}
-                  >
-                    Sign up
-                  </Button>
-                </MenuItem>
-                <MenuItem>
-                  <Button 
-                    variant="outlined" 
-                    fullWidth
-                    sx={{
-                      color: 'text.primary',
-                      borderColor: 'divider',
-                      fontWeight: 500,
-                      py: 1.5,
-                      '&:hover': {
-                        backgroundColor: 'action.hover',
-                        borderColor: 'primary.main',
-                        color: 'primary.main',
-                      },
-                      transition: 'all 0.2s ease-in-out',
-                    }}
-                  >
-                    Sign in
-                  </Button>
-                </MenuItem>
+
+                {!user ? (
+                  <>
+                    <MenuItem>
+                      <Button
+                        variant="contained"
+                        fullWidth
+                        sx={{
+                          py: 1.5,
+                          fontWeight: 600,
+                          borderRadius: 2,
+                        }}
+                        onClick={() => navigate('/register')}
+                      >
+                        Sign up
+                      </Button>
+                    </MenuItem>
+                    <MenuItem>
+                      <Button
+                        variant="outlined"
+                        fullWidth
+                        sx={{
+                          py: 1.5,
+                          fontWeight: 500,
+                        }}
+                        onClick={() => navigate('/login')}
+                      >
+                        Sign in
+                      </Button>
+                    </MenuItem>
+                  </>
+                ) : (
+                  <MenuItem>
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      sx={{ py: 1.5, fontWeight: 500 }}
+                      onClick={logout}
+                    >
+                      Sign out
+                    </Button>
+                  </MenuItem>
+                )}
               </Box>
             </Drawer>
           </Box>
