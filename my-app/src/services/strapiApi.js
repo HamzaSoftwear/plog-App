@@ -115,10 +115,10 @@ const formatPost = (post) => {
     content: convertRichTextToHtml(attributes.Content),
     type: attributes.Type || 'General',
     author: attributes.Author || 'Unknown Author',
-    date: attributes.Date || new Date().toISOString().split('T')[0],
+    date: attributes.Date || attributes.createdAt || new Date().toISOString().split('T')[0],
     readTime: attributes.readTime || '5 min read',
     image: getImageUrl(attributes.Image),
-    publishedAt: attributes.publishedAt,
+    publishedAt: attributes.publishedAt || attributes.createdAt,
     createdAt: attributes.createdAt,
     updatedAt: attributes.updatedAt,
   };
@@ -129,7 +129,8 @@ export const strapiService = {
   // Get all published posts
   async getAllPosts() {
     try {
-      const response = await strapiApi.get('/posts?populate=Image&sort=publishedAt:desc');
+      // Try the correct Strapi v5 endpoint
+      const response = await strapiApi.get('/posts?populate=*&sort=createdAt:desc');
       console.log('Strapi API Response:', response.data);
       
       if (!response.data || !response.data.data) {
@@ -149,7 +150,7 @@ export const strapiService = {
   // Get posts by category/type
   async getPostsByType(type) {
     try {
-      const response = await strapiApi.get(`/posts?filters[Type][$eq]=${type}&populate=Image&sort=publishedAt:desc`);
+      const response = await strapiApi.get(`/posts?filters[Type][$eq]=${type}&populate=*&sort=createdAt:desc`);
       if (!response.data || !response.data.data) {
         return [];
       }
@@ -165,7 +166,7 @@ export const strapiService = {
     try {
       // For Strapi v5, we need to use the documentId or fetch from the list and filter
       // Let's try the documentId approach first
-      const response = await strapiApi.get(`/posts?filters[id][$eq]=${id}&populate=Image`);
+      const response = await strapiApi.get(`/posts?filters[id][$eq]=${id}&populate=*`);
       console.log('Single post API Response:', response.data);
       
       if (!response.data || !response.data.data || response.data.data.length === 0) {
@@ -183,7 +184,7 @@ export const strapiService = {
   // Get single post by slug
   async getPostBySlug(slug) {
     try {
-      const response = await strapiApi.get(`/posts?filters[Slug][$eq]=${slug}&populate=Image`);
+      const response = await strapiApi.get(`/posts?filters[Slug][$eq]=${slug}&populate=*`);
       if (response.data && response.data.data && response.data.data.length > 0) {
         return formatPost(response.data.data[0]);
       }
@@ -197,7 +198,7 @@ export const strapiService = {
   // Search posts by title or description
   async searchPosts(query) {
     try {
-      const response = await strapiApi.get(`/posts?filters[$or][0][Title][$containsi]=${query}&filters[$or][1][Description][$containsi]=${query}&populate=Image&sort=publishedAt:desc`);
+      const response = await strapiApi.get(`/posts?filters[$or][0][Title][$containsi]=${query}&filters[$or][1][Description][$containsi]=${query}&populate=*&sort=createdAt:desc`);
       if (!response.data || !response.data.data) {
         return [];
       }
@@ -223,7 +224,7 @@ export const strapiService = {
   // Get featured posts (you can customize this based on your needs)
   async getFeaturedPosts(limit = 3) {
     try {
-      const response = await strapiApi.get(`/posts?populate=Image&sort=publishedAt:desc&pagination[limit]=${limit}`);
+      const response = await strapiApi.get(`/posts?populate=*&sort=createdAt:desc&pagination[limit]=${limit}`);
       return response.data.data.map(formatPost);
     } catch (error) {
       console.error('Error fetching featured posts:', error);

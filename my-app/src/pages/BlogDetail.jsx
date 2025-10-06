@@ -30,18 +30,31 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import PrintIcon from '@mui/icons-material/Print';
-import { usePostPrefs } from '../context/PostPrefsContext';
+import { usePostInteractions } from '../context/PostInteractionsContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function BlogDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [blogPost, setBlogPost] = useState(null);
-  const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState({ name: '', comment: '' });
+  const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { isLiked, isBookmarked, toggleLike, toggleBookmark } = usePostPrefs();
   const [progress, setProgress] = useState(0);
+  const [commentLoading, setCommentLoading] = useState(false);
+  
+  const { user } = useAuth();
+  const {
+    isLiked,
+    isSaved,
+    getLikesCount,
+    getComments,
+    toggleLike,
+    toggleSave,
+    addComment,
+    loadPostInteractions,
+    isLoading
+  } = usePostInteractions();
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -51,11 +64,8 @@ export default function BlogDetail() {
         const post = await strapiService.getPostById(id);
         if (post) {
           setBlogPost(post);
-          // Load comments from localStorage for this post
-          const savedComments = localStorage.getItem(`blogPost_${id}_comments`);
-          if (savedComments) {
-            setComments(JSON.parse(savedComments));
-          }
+          // Load interactions from Firestore
+          await loadPostInteractions(id);
         } else {
           setError('Post not found');
         }
@@ -90,29 +100,60 @@ export default function BlogDetail() {
     };
   }, [blogPost]);
 
-  const handleCommentSubmit = (e) => {
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (newComment.name.trim() && newComment.comment.trim()) {
-      const comment = {
-        id: Date.now(),
-        name: newComment.name.trim(),
-        comment: newComment.comment.trim(),
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      
-      const updatedComments = [...comments, comment];
-      setComments(updatedComments);
-      
-      // Save comments to localStorage for persistence
-      localStorage.setItem(`blogPost_${id}_comments`, JSON.stringify(updatedComments));
-      
-      setNewComment({ name: '', comment: '' });
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
+    if (!newComment.trim()) {
+      alert('Please write a comment before submitting.');
+      return;
+    }
+    
+    setCommentLoading(true);
+    try {
+      console.log('Submitting comment:', { postId: id, user, text: newComment });
+      await addComment(id, newComment);
+      setNewComment('');
+      console.log('Comment submitted successfully');
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      alert('Failed to add comment. Please try again.');
+    } finally {
+      setCommentLoading(false);
     }
   };
 
-  const handleInputChange = (field) => (e) => {
-    setNewComment({ ...newComment, [field]: e.target.value });
+  const handleLikeClick = async () => {
+    if (!user) {
+      // Redirect to login page instead of showing alert
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      await toggleLike(id);
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      alert('Failed to like post. Please try again.');
+    }
+  };
+
+  const handleSaveClick = async () => {
+    if (!user) {
+      // Redirect to login page instead of showing alert
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      await toggleSave(id);
+    } catch (error) {
+      console.error('Error toggling save:', error);
+      alert('Failed to save post. Please try again.');
+    }
   };
 
   const goBack = () => {
@@ -159,7 +200,7 @@ export default function BlogDetail() {
         <Button
           onClick={goBack}
           startIcon={<ArrowBackIcon />}
-          sx={{ mb: 3 }}
+          sx={{ mb: 3, mt:4 }}
           variant="outlined"
         >
           Back to Blog
@@ -225,17 +266,19 @@ export default function BlogDetail() {
               variant="outlined"
               size="small"
               startIcon={isLiked(id) ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
-              onClick={() => toggleLike(id)}
+              onClick={handleLikeClick}
+              disabled={isLoading(id)}
             >
-              {isLiked(id) ? 'Liked' : 'Like'}
+              {isLiked(id) ? 'Liked' : 'Like'} ({getLikesCount(id)})
             </Button>
             <Button
               variant="outlined"
               size="small"
-              startIcon={isBookmarked(id) ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon />}
-              onClick={() => toggleBookmark(id)}
+              startIcon={isSaved(id) ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon />}
+              onClick={handleSaveClick}
+              disabled={isLoading(id)}
             >
-              {isBookmarked(id) ? 'Bookmarked' : 'Bookmark'}
+              {isSaved(id) ? 'Saved' : 'Save'}
             </Button>
             <Button
               variant="outlined"
@@ -313,69 +356,99 @@ export default function BlogDetail() {
         {/* Comments Section */}
         <Box sx={{ mb: 4 }}>
           <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
-            Comments ({comments.length})
+            Comments ({getComments(id).length})
           </Typography>
 
           {/* Comment Form */}
-          <Paper elevation={1} sx={{ p: 3, mb: 3 }}>
-            <form onSubmit={handleCommentSubmit}>
-              <Stack spacing={2}>
-                <TextField
-                  
-                  placeholder='your name'
-                  value={newComment.name}
-                  onChange={handleInputChange('name')}
-                  required
-                  fullWidth
-                  variant="outlined"
-                />
-                <TextField
-                placeholder='Write a comment'
-                  
-                  value={newComment.comment}
-                  onChange={handleInputChange('comment')}
-                  required
-                  
-                  rows={4}
-                  fullWidth
-                  variant="outlined"
-                />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{ alignSelf: 'flex-start', px: 4 }}
-                >
-                  Post Comment
-                </Button>
-              </Stack>
-            </form>
-          </Paper>
+          {user ? (
+            <Paper elevation={1} sx={{ p: 3, mb: 3 }}>
+              <form onSubmit={handleCommentSubmit}>
+                <Stack spacing={2}>
+                  <TextField
+                    placeholder='Write a comment...'
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    required
+                    multiline
+                    rows={5}
+                    fullWidth
+                    variant="outlined"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        minHeight: '120px',
+                      }
+                    }}
+                  />
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{ 
+                      alignSelf: 'flex-start', 
+                      px: 4,
+                      backgroundColor: 'primary.main',
+                      color: 'white',
+                      '&:hover': {
+                        backgroundColor: 'primary.dark',
+                      },
+                      '&:disabled': {
+                        backgroundColor: 'grey.300',
+                        color: 'grey.600',
+                        border: '1px solid',
+                        borderColor: 'grey.300',
+                      }
+                    }}
+                    disabled={!newComment.trim() || commentLoading}
+                  >
+                    {commentLoading ? 'Posting...' : 'Post Comment'}
+                  </Button>
+                </Stack>
+              </form>
+            </Paper>
+          ) : (
+            <Paper elevation={1} sx={{ p: 3, mb: 3, textAlign: 'center' }}>
+              <Typography color="text.secondary">
+                Please <Button onClick={() => navigate('/login')}>log in</Button> to comment
+              </Typography>
+            </Paper>
+          )}
 
           {/* Comments List */}
           <Stack spacing={2}>
-            {comments.length === 0 ? (
+            {getComments(id).length === 0 ? (
               <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
                 No comments yet. Be the first to comment!
               </Typography>
             ) : (
-              comments.map((comment) => (
-                <Card key={comment.id} elevation={1}>
-                  <CardContent>
+              getComments(id).map((comment) => (
+                <Card key={comment.id} elevation={1} sx={{ borderRadius: 2 }}>
+                  <CardContent sx={{ p: 1 }}>
                     <Stack direction="row" spacing={2} alignItems="flex-start">
-                      <Avatar sx={{ bgcolor: 'primary.main' }}>
-                        {comment.name.charAt(0).toUpperCase()}
+                      <Avatar 
+                        src={comment.userPhoto} 
+                        sx={{ 
+                          bgcolor: 'primary.main',
+                          width: 48,
+                          height: 48,
+                          fontSize: '1.2rem'
+                        }}
+                      >
+                        {comment.userName.charAt(0).toUpperCase()}
                       </Avatar>
-                      <Box sx={{ flex: 1 }}>
-                        <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
-                          <Typography variant="subtitle2" fontWeight="bold">
-                            {comment.name}
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1.5 }}>
+                          <Typography variant="subtitle1" fontWeight="bold" sx={{ fontSize: '1rem' }}>
+                            {comment.userName}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {comment.date} at {comment.time}
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
+                            {comment.createdAt?.toLocaleDateString()} at {comment.createdAt?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </Typography>
                         </Stack>
-                        <Typography variant="body1">
-                          {comment.comment}
+                        <Typography variant="body1" sx={{ 
+                          fontSize: '1rem',
+                          lineHeight: 1.6,
+                          wordBreak: 'break-word'
+                        }}>
+                          {comment.text}
                         </Typography>
                       </Box>
                     </Stack>

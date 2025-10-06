@@ -96,6 +96,40 @@ export default function AppAppBar() {
                   </Button>
                 )
               )}
+              {user && (
+                <>
+                  <Button
+                    variant="text"
+                    size="medium"
+                    sx={{
+                      color: 'text.primary',
+                      fontWeight: 500,
+                      '&:hover': {
+                        backgroundColor: 'action.hover',
+                        color: 'primary.main',
+                      },
+                    }}
+                    onClick={() => navigate('/saved')}
+                  >
+                    Saved
+                  </Button>
+                  <Button
+                    variant="text"
+                    size="medium"
+                    sx={{
+                      color: 'text.primary',
+                      fontWeight: 500,
+                      '&:hover': {
+                        backgroundColor: 'action.hover',
+                        color: 'primary.main',
+                      },
+                    }}
+                    onClick={() => navigate('/liked')}
+                  >
+                    Liked
+                  </Button>
+                </>
+              )}
             </Box>
           </Box>
 
@@ -204,6 +238,16 @@ export default function AppAppBar() {
                       {item}
                     </MenuItem>
                   )
+                )}
+                {user && (
+                  <>
+                    <MenuItem sx={{ py: 1.5 }} onClick={() => navigate('/saved')}>
+                      Saved
+                    </MenuItem>
+                    <MenuItem sx={{ py: 1.5 }} onClick={() => navigate('/liked')}>
+                      Liked
+                    </MenuItem>
+                  </>
                 )}
 
                 <Divider sx={{ my: 3 }} />

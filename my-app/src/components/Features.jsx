@@ -174,11 +174,12 @@ export default function Features() {
                       color: "text.secondary",
                       lineHeight: 1.5,
                       pl: "10px",
-                      pb: "10px",
+                      mb: 2,
                     }}
                   >
                     {article.description}
                   </Typography>
+
                 </CardContent>
               </CardActionArea>
             </Card>

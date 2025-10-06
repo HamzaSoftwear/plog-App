@@ -1,77 +1,100 @@
 
-# Plog App (React + Strapi)
+# 📰 Plog App (React + Material UI (MUI) + Strapi + Firebase)
 
-## Overview
+## 🌟 Overview
 
-**Plog App** is a blogging platform built with **React** (frontend) and **Strapi** (backend CMS).
-It allows admins to create and manage blog posts, while users can interact with content by signing up, commenting, liking, and saving posts to their personal collection.
+**Plog App** is a modern blogging platform built with **React** (frontend), **Strapi** (backend CMS), and **Firebase** for user authentication and real-time data.
 
-
-
-## Features
-
-* **Content Management with Strapi**
-
-  * Admin can create, edit, and publish blog posts with fields:
-    `title`, `slug`, `description`, `content`, `type`, `author`, `date`, `readTime`, `image`, `status`.
-* **User Authentication**
-
-  * Users can sign up, log in, and manage their profiles.
-* **User Interactions**
-
-  * Add comments to posts.
-  * Like/unlike posts.
-  * Save/bookmark posts for later.
-* **User Dashboard**
-
-  * Dedicated page where each user can see:
-
-    * Posts they liked.
-    * Posts they saved/bookmarked.
-    * Comments they have written.
+It allows users to register, log in (via email or Google), browse posts, like and save them, and add comments — all managed seamlessly through a clean, responsive interface.
 
 ---
 
-## Tech Stack
+## 🚀 Features
 
-* **Frontend:** React, React Router, Axios
-* **Backend:** Strapi (Headless CMS)
-* **Auth & User Data:** Firebase Authentication + Firestore
-* **Database (Strapi):** SQLite (development), PostgreSQL/MySQL (production)
-* **Media:** Strapi Media Library
+### 🧩 Content Management – **Strapi CMS**
+
+* Admins can create, edit, and publish blog posts.
+* Core post fields:
+
+  ```
+  title, slug, description, content, type, author, date, readTime, image, status
+  ```
+* Public access configured under
+  `Settings → Roles → Public → Permissions (find, findOne)`.
 
 ---
 
-## Project Structure
+### 🔐 Authentication – **Firebase Auth**
+
+* Sign up and log in using **Email & Password**.
+* One-click login with **Google Authentication**.
+* Automatic sync of user info (name, email, avatar).
+* Persistent user sessions handled via `onAuthStateChanged`.
+
+---
+
+### 💬 User Interactions *(Coming Soon)*
+
+* Like / Unlike posts.
+* Save or bookmark posts.
+* Comment on posts (stored per user).
+* Dedicated user dashboard for:
+
+  * Liked posts
+  * Saved posts
+  * Written comments
+
+---
+
+### 🏠 User Interface
+
+* Fully responsive and designed using **Material UI (MUI)**.
+* Dynamic **AppBar** showing the logged-in user’s name or profile image.
+* Automatic redirect to the homepage after sign-up or login.
+
+---
+
+## 🧱 Tech Stack
+
+| Component                | Technology                                           |
+| ------------------------ | ---------------------------------------------------- |
+| **Frontend**             | React + React Router + Axios + MUI                   |
+| **Backend**              | Strapi CMS                                           |
+| **Auth & Realtime Data** | Firebase Authentication + Firestore                  |
+| **Database (CMS)**       | SQLite (Development) → PostgreSQL/MySQL (Production) |
+| **Media Storage**        | Strapi Media Library                                 |
+
+---
+
+## 📂 Project Structure
 
 ```
 plogapp/
-├─ cms/          # Strapi backend
-├─ my-app/       # React frontend
-├─ README.md
+├── cms/               # Strapi backend
+│   ├── .tmp/          # Local SQLite database
+│   └── ...
+├── my-app/            # React frontend
+│   ├── src/
+│   │   ├── config/    # firebase.js + environment.js
+│   │   ├── context/   # AuthContext.jsx
+│   │   ├── pages/     # Home, Login, Register, Profile, BlogDetail
+│   │   └── components/# AppAppBar, etc.
+│   └── .env           # Firebase + Strapi configuration
+└── README.md
 ```
 
 ---
 
-## Prerequisites
+## ⚙️ Setup Guide
 
-* Node.js >= 16
-* npm or yarn
-* Firebase project (for Auth + Firestore)
-* Git (optional)
-
----
-
-## Getting Started
-
-### 1. Clone the project
+### 1️⃣ Clone the project
 
 ```bash
-git clone https://github.com/your-username/plogapp.git
+git clone https://github.com/HamzaSoftwear/plog-App.git
 cd plogapp
 ```
 
-### 2. Setup Strapi (Backend)
+### 2️⃣ Set up Strapi (Backend)
 
 ```bash
 cd cms
@@ -79,47 +102,56 @@ npm install
 npm run develop
 ```
 
-* Visit `http://localhost:1337/admin`
-* Create the **first admin account**.
-* Use the **Content-Type Builder** to create `Post` with the fields listed above.
-* Go to **Settings → Roles → Public**, enable `find` and `findOne` for posts.
+Then:
 
-### 3. Setup React (Frontend)
+* Visit `http://localhost:1337/admin`
+* Create your **admin account**
+* Enable public API access (`find`, `findOne`) for the **Post** content type
+
+---
+
+### 3️⃣ Set up React (Frontend)
 
 ```bash
 cd ../my-app
 npm install
-npm start
+npm run dev
 ```
 
-React app runs on `http://localhost:3000`.
+Runs on `http://localhost:5173`
 
-### 4. Setup Firebase
+---
 
-* Create a project at [Firebase Console](https://console.firebase.google.com/).
-* Enable **Authentication** (Email/Password, Google).
-* Enable **Firestore Database**.
-* Copy Firebase config into `my-app/.env`:
+### 4️⃣ Set up Firebase
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a project
+3. Enable:
+
+   * **Email/Password Authentication**
+   * **Google Authentication**
+   * **Firestore Database**
+4. Copy your config into `my-app/.env.local`:
 
 ```env
-REACT_APP_FIREBASE_API_KEY=xxxx
-REACT_APP_FIREBASE_AUTH_DOMAIN=xxxx
-REACT_APP_FIREBASE_PROJECT_ID=xxxx
-REACT_APP_FIREBASE_STORAGE_BUCKET=xxxx
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=xxxx
-REACT_APP_FIREBASE_APP_ID=xxxx
-REACT_APP_STRAPI_URL=http://localhost:1337
+VITE_FIREBASE_API_KEY=xxxx
+VITE_FIREBASE_AUTH_DOMAIN=xxxx
+VITE_FIREBASE_PROJECT_ID=xxxx
+VITE_FIREBASE_STORAGE_BUCKET=xxxx
+VITE_FIREBASE_MESSAGING_SENDER_ID=xxxx
+VITE_FIREBASE_APP_ID=xxxx
+VITE_STRAPI_URL=http://localhost:1337
 ```
 
 ---
 
-## Available Commands
+## 🧠 Available Commands
 
 ### Strapi
 
 ```bash
 cd cms
-npm run develop   # start backend in dev mode
+npm run develop   # development mode
 npm run start     # production mode
 ```
 
@@ -127,34 +159,41 @@ npm run start     # production mode
 
 ```bash
 cd my-app
-npm start         # start frontend
+npm run dev       # start frontend
 npm run build     # build for production
 ```
 
 ---
 
-## Deployment
+## 🌍 Deployment
 
-* **Backend (Strapi):** Deploy to Render, Railway, Heroku, or any Node server.
-* **Frontend (React):** Deploy to Netlify, Vercel, or Firebase Hosting.
-* **Database:** For production, replace SQLite with PostgreSQL or MySQL.
-* **Firebase:** Auth & Firestore are already cloud-based.
-
----
-
-## Future Improvements
-
-* Rich text editor for comments.
-* Notifications for likes/comments.
-* SEO optimizations for posts.
-* User profile customization.
+| Component            | Recommended Platform                |
+| -------------------- | ----------------------------------- |
+| **Frontend**         | Firebase Hosting / Netlify / Vercel |
+| **Backend**          | Render / Railway / Heroku           |
+| **Database**         | PostgreSQL / MySQL (Production)     |
+| **Auth & Firestore** | Firebase Cloud Services             |
 
 ---
 
-## License
+## 🔮 Future Enhancements
 
-MIT License © 2025 Hamza Naeem
+* Full **like**, **bookmark**, and **comment** system using Firestore
+* User dashboard for saved and liked posts
+* SEO improvements and analytics
+* Multilingual support (English / Arabic)
+* Notifications for comments and likes
 
+---
 
+## 👨‍💻 Contributors
 
+Developed by **Hamza Naeem**
+with technical support from **GPT-5 AI Development Partner** 🤝
+
+---
+
+## 📜 License
+
+MIT License © 2025 **Hamza Naeem**
 

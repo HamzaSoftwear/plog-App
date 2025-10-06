@@ -28,7 +28,7 @@ const handleSubmit = async (e) => {
   return (
     <AppTheme>
       <CssBaseline enableColorScheme />
-      <AppAppBar />
+     
       <Container maxWidth="sm" sx={{ mt: 12 }}>
         <Stack spacing={3}>
           <Stack spacing={1} alignItems="center">
