@@ -192,6 +192,10 @@ Developed by **Hamza Naeem**
 with technical support from **GPT-5 AI Development Partner** 🤝
 
 ---
+##🌍 Demo
+you can try from here:
+ https://plog-app-ec1be.web.app
+غ
 
 ## 📜 License
 
